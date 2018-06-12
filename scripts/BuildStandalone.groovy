@@ -51,6 +51,8 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 
         boolean jetty = (argsMap.jetty || buildSettings.config.grails.plugin.standalone.useJetty) && !argsMap.tomcat
 
+        String jettyVersion = buildSettings.config.grails.plugin.standalone.jettyVersion ?: '9.3.23.v20180228'
+
         event 'StatusUpdate', ["Building standalone jar $jar.path for ${jetty ? 'Jetty' : 'Tomcat'}"]
 
         File warfile
@@ -65,7 +67,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
                 errorAndDie "War file $argsMap.warfile not found"
             }
         } else {
-            warfile = buildWar(workDir)
+            warfile = buildWar(workDir, jettyVersion)
             if (!buildJar(workDir, jar, jetty)) {
                 return
             }
@@ -82,14 +84,14 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
     }
 }
 
-buildWar = { File workDir ->
+buildWar = { File workDir, String jettyVersion ->
     File warfile = new File(workDir, 'embedded.war').absoluteFile
     warfile.deleteOnExit()
 
     argsMap.params.clear()
     argsMap.params << warfile.path
     war()
-    removeTomcatJarsFromWar workDir, warfile
+    removeServerJarsFromWar workDir, warfile, jettyVersion
 
     warfile
 }
@@ -135,7 +137,7 @@ buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
 
     jar.canonicalFile.parentFile.mkdirs()
     ant.jar(destfile: jar) {
-        fileset dir: workDir
+        fileset dir: workDir, excludes: 'META-INF/**.SF,META-INF/*.DSA,META-INF/*.RSA,META-INF/maven/**'
         if (warfile) {
             zipfileset file: warfile, fullpath: 'embedded.war'
         }
@@ -147,11 +149,13 @@ buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
     true
 }
 
-removeTomcatJarsFromWar = { File workDir, File warfile ->
+removeServerJarsFromWar = { File workDir, File warfile, String jettyVersion ->
     def expandedDir = new File(workDir, 'expanded').absoluteFile
     ant.unzip src: warfile, dest: expandedDir
     for (file in new File(expandedDir, 'WEB-INF/lib').listFiles()) {
-        if (file.name.startsWith('tomcat-') && !['embed-logging', 'jdbc', 'pool'].any { file.name.contains it }) {
+        if (file.name.contains(jettyVersion) || (file.name.startsWith('tomcat-') && !['embed-logging', 'jdbc', 'pool'].any {
+            file.name.contains it
+        })) {
             assert file.delete()
         }
     }
@@ -184,9 +188,11 @@ resolveJars = { boolean jetty, standaloneConfig ->
         dependencies {
             compile(*(deps.findAll { it instanceof String })) {
                 transitive = true
+                excludes([group: 'org.eclipse.jetty.http2'])
             }
             compile(*(deps.findAll { it instanceof Map })) {
                 transitive = true
+                excludes([group: 'org.eclipse.jetty.http2'])
             }
         }
     }
