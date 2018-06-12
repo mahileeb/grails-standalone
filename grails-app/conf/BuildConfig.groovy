@@ -14,7 +14,7 @@ grails.project.dependency.resolution = {
 
 	dependencies {
 		String jettyVersion = '9.3.23.v20180228'
-		compile 'org.eclipse.jetty.aggregate:jetty-all:pom:' + jettyVersion
+        compile([group: 'org.eclipse.jetty.aggregate', name: 'jetty-all', version: jettyVersion, extension: "pom"])
 
 		String tomcatVersion = '9.0.0.M4'
 		compile "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion", {

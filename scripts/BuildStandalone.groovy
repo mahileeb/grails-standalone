@@ -182,7 +182,10 @@ resolveJars = { boolean jetty, standaloneConfig ->
             mavenCentral()
         }
         dependencies {
-            compile(*deps) {
+            compile(*(deps.findAll { it instanceof String })) {
+                transitive = true
+            }
+            compile(*(deps.findAll { it instanceof Map })) {
                 transitive = true
             }
         }
@@ -210,8 +213,8 @@ calculateJettyDependencies = { standaloneConfig ->
     String servletVersion = buildSettings.servletVersion
     String servletApiDep = standaloneConfig.jettyServletApiDependency ?:
             'javax.servlet:' + (servletVersion.startsWith('3') ? 'javax.servlet-api:3.1.0' : 'servlet-api:' + servletVersion)
-    String jettyVersion = standaloneConfig.jettyVersion ?: '7.6.0.v20120127'
-    ['org.eclipse.jetty.aggregate:jetty-all:pom:' + jettyVersion, servletApiDep]
+    String jettyVersion = standaloneConfig.jettyVersion ?: '9.3.23.v20180228'
+    [[group: 'org.eclipse.jetty.aggregate', name: 'jetty-all', extension: 'pom', version: jettyVersion], servletApiDep]
 }
 
 calculateTomcatDependencies = { standaloneConfig ->

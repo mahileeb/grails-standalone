@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://maven.apache.org/POM/4.0.0'
+         xsi:schemaLocation='http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd'>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.grails.plugins</groupId>
+    <artifactId>standalone</artifactId>
+    <packaging>zip</packaging>
+    <version>2.5.0</version>
+    <name>Standalone App Runner</name>
+    <description>Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server</description>
+    <url>http://grails-plugins.github.com/grails-standalone/</url>
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <organization>
+        <name>Grails</name>
+        <url>http://www.grails.org/</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Burt Beckwith</name>
+            <email>burt@burtbeckwith.com</email>
+        </developer>
+    </developers>
+    <issueManagement>
+        <url>https://github.com/grails-plugins/grails-standalone/issues</url>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/grails-plugins/grails-standalone</url>
+    </scm>
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.jetty.aggregate</groupId>
+            <artifactId>jetty-all</artifactId>
+            <version>9.3.23.v20180228</version>
+            <scope>compile</scope>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+</project>
