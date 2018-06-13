@@ -112,7 +112,7 @@ buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
         javaVersion = javaVersion.min(new BigDecimal('1.7'))
     }
 
-    ant.javac(destdir: workDir, compiler: 'javac' + javaVersion, source: '1.5', target: '1.5',
+    ant.javac(destdir: workDir, compiler: 'javac' + javaVersion, source: '1.8', target: '1.8',
             debug: true, listfiles: true, classpathref: 'standalone.cp', includeAntRuntime: false) {
         src(path: new File(standalonePluginDir, 'src/java').path)
         src(path: new File(standalonePluginDir, 'src/runtime').path)
@@ -153,8 +153,10 @@ removeServerJarsFromWar = { File workDir, File warfile, String jettyVersion ->
     def expandedDir = new File(workDir, 'expanded').absoluteFile
     ant.unzip src: warfile, dest: expandedDir
     for (file in new File(expandedDir, 'WEB-INF/lib').listFiles()) {
-        if (file.name.contains(jettyVersion) || (file.name.startsWith('tomcat-') && !['embed-logging', 'jdbc', 'pool'].any {
-            file.name.contains it
+        def fileName = file.name
+        //javax websocket stuff isn't discovered properly out side of war file
+        if ((fileName.contains(jettyVersion) && ! fileName.contains("javax-websocket")) || (fileName.startsWith('tomcat-') && !['embed-logging', 'jdbc', 'pool'].any {
+            fileName.contains it
         })) {
             assert file.delete()
         }

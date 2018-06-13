@@ -57,8 +57,6 @@ public class JettyLauncher extends AbstractLauncher {
     @Override
     protected void start(File exploded) throws IOException {
 
-        System.setProperty("org.eclipse.jetty.xml.XmlParser.NotValidating", "true");
-
         File workDir = new File(System.getProperty("java.io.tmpdir"));
         String contextPath = getArg("context", "");
         if (hasLength(contextPath) && !contextPath.startsWith("/")) {
@@ -131,10 +129,14 @@ public class JettyLauncher extends AbstractLauncher {
         setSystemProperty("java.naming.factory.initial", "org.eclipse.jetty.jndi.InitialContextFactory");
 
         Class<?>[] configurationClasses = {
-                AnnotationConfiguration.class,
-                WebInfConfiguration.class, WebXmlConfiguration.class, MetaInfConfiguration.class,
-                FragmentConfiguration.class, EnvConfiguration.class, PlusConfiguration.class,
-                JettyWebXmlConfiguration.class};
+                WebInfConfiguration.class,
+                WebXmlConfiguration.class,
+                MetaInfConfiguration.class,
+                FragmentConfiguration.class,
+                EnvConfiguration.class,
+                PlusConfiguration.class,
+                JettyWebXmlConfiguration.class,
+                AnnotationConfiguration.class};
         Configuration[] configurations = new Configuration[configurationClasses.length];
         for (int i = 0; i < configurationClasses.length; i++) {
             configurations[i] = newConfigurationInstance(configurationClasses[i]);
@@ -210,6 +212,7 @@ public class JettyLauncher extends AbstractLauncher {
 
         ServerConnector httpsConnector = new ServerConnector(server, new SslConnectionFactory(sslConnectionFactory, "http/1.1"), new HttpConnectionFactory(httpsConfig));
         httpsConfig.setIdleTimeout(50000);
+        httpsConnector.setHost(serverHost);
 
         Connector[] connectors = server.getConnectors();
         Connector[] allConnectors = new Connector[connectors.length + 1];
